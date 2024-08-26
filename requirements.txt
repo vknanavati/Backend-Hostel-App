@@ -4,4 +4,4 @@ flask_cors==4.0.1
 pandas==2.2.2
 Requests==2.32.3
 gunicorn==23.0.0
-jupyter==7.2.1
+jupyter
