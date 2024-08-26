@@ -108,10 +108,10 @@ def get_user_city():
     df.to_csv("Hostel_City_Ratings.csv")
     print("\nCSV created! YAY!!\n")
 
-    process = psutil.Process()
-    memory_bytes = process.memory_info().rss
-    memory_mb = memory_bytes / (1024 ** 2)  # Convert bytes to megabytes
-    print(f"Memory used: {memory_mb:.2f} MB")
+    main_process = psutil.Process()
+    before_memory = main_process.memory_info().rss
+    check_before = (before_memory) / (1024 ** 2)
+    print(f"Memory used before subprocess: {check_before}")
 
     try:
         subprocess.run([
@@ -125,15 +125,9 @@ def get_user_city():
     except subprocess.CalledProcessError as e:
         print(f"Notebook error {e}")
 
-    process = subprocess.Popen(["jupyter", "nbconvert", "--to", "notebook", "--execute", "--inplace", "hostel_graphs.ipynb"], stdout=subprocess.PIPE, stderr=subprocess.PIPE) # noqa
-
-    process.wait()
-
-    subprocess_pid = process.pid
-    subprocess_process = psutil.Process(subprocess_pid)
-    memory_bytes = subprocess_process.memory_info().rss
-    memory_mb = memory_bytes / (1024 ** 2)  # Convert bytes to megabytes
-    print(f"Subprocess memory used: {memory_mb:.2f} MB")
+    after_memory = main_process.memory_info().rss
+    memory_used = (after_memory - before_memory) / (1024 ** 2)
+    print(f"Memory used by subprocess: {memory_used:.2f} MB")
 
     if not data:
         return jsonify({"error": "no data received"}), 400
