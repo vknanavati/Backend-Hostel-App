@@ -109,7 +109,9 @@ def get_user_city():
     print("\nCSV created! YAY!!\n")
 
     process = psutil.Process()
-    print("*****Memory used: ", process.memory_info().rss)
+    memory_bytes = process.memory_info().rss
+    memory_mb = memory_bytes / (1024 ** 2)  # Convert bytes to megabytes
+    print(f"Memory used: {memory_mb:.2f} MB")
 
     try:
         subprocess.run([
