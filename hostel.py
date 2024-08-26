@@ -6,6 +6,8 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from bs4 import BeautifulSoup
 import pandas as pd
+import psutil
+
 
 app = Flask(__name__, static_folder='static')
 CORS(app)
@@ -105,6 +107,9 @@ def get_user_city():
     # print(df)
     df.to_csv("Hostel_City_Ratings.csv")
     print("\nCSV created! YAY!!\n")
+
+    process = psutil.Process()
+    print("*****Memory used: ", process.memory_info().rss)
 
     try:
         subprocess.run([
