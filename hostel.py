@@ -1,6 +1,7 @@
 import json
 import re
 import subprocess
+import os
 import requests
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -107,6 +108,7 @@ def get_user_city():
     # print(df)
     df.to_csv("Hostel_City_Ratings.csv")
     print("\nCSV created! YAY!!\n")
+    print(f"CSV file location: {os.path.abspath('Hostel_City_Ratings.csv')}")
 
     try:
         result = subprocess.run([
