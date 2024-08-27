@@ -115,7 +115,7 @@ def get_user_city():
             "--execute",
             "--inplace",
             "hostel_graphs.ipynb"
-        ], check=True, stdout=subprocess.PIPE, stdeerr=subprocess.PIPE, timeout=60 # noqa
+        ], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60 # noqa
         )
         print("Notebook ran succesfully")
 
