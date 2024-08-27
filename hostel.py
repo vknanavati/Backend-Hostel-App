@@ -6,7 +6,6 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from bs4 import BeautifulSoup
 import pandas as pd
-import psutil
 
 
 app = Flask(__name__, static_folder='static')
@@ -65,10 +64,6 @@ def get_continent(country):
 
 
 def get_cities(country, continent):
-    main_process = psutil.Process()
-    memory_used = main_process.memory_info().rss
-    memory_used = memory_used/(1024**2)
-    print(f"memory used: {memory_used:.2f}MB")
 
     city_list = []
     # generates list of cities with hostels in that country
@@ -90,10 +85,6 @@ def get_cities(country, continent):
         city_list.append(title)
 
     print(f"\nList of cities: {city_list}\n")
-    main_process = psutil.Process()
-    memory_used = main_process.memory_info().rss
-    memory_used = memory_used/(1024**2)
-    print(f"memory used: {memory_used:.2f}MB")
 
     return city_list
 
@@ -117,26 +108,26 @@ def get_user_city():
     df.to_csv("Hostel_City_Ratings.csv")
     print("\nCSV created! YAY!!\n")
 
-    main_process = psutil.Process()
-    before_memory = main_process.memory_info().rss
-    check_before = (before_memory) / (1024 ** 2)
-    print(f"Memory used before subprocess: {check_before}")
-
     try:
-        subprocess.run([
+        result = subprocess.run([
             "jupyter", "nbconvert",
             "--to", "notebook",
             "--execute",
             "--inplace",
             "hostel_graphs.ipynb"
-        ], check=True)
+        ], check=True, stdout=subprocess.PIPE, stdeerr=subprocess.PIPE, timeout=60 # noqa
+        )
         print("Notebook ran succesfully")
+
+        if result.stderr:
+            print(f"Error: {result.stderr.decode('utf-8')}")
+            return result.stdout.decode('utf-8')
     except subprocess.CalledProcessError as e:
         print(f"Notebook error {e}")
 
-    after_memory = main_process.memory_info().rss
-    memory_used = (after_memory - before_memory) / (1024 ** 2)
-    print(f"Memory used by subprocess: {memory_used:.2f} MB")
+    except subprocess.TimeoutExpired:
+        print("Subprocess timed out")
+        return "Timeout Error"
 
     if not data:
         return jsonify({"error": "no data received"}), 400
@@ -195,10 +186,6 @@ def city_page(continent, country, city):
         print("\nThis city has only one page worth of hostels.\n")
         url_list = [url]
         print(f"Single url link: {url_list}")
-        main_process = psutil.Process()
-        memory_used = main_process.memory_info().rss
-        memory_used = memory_used/(1024**2)
-        print(f"memory used: {memory_used:.2f}MB")
         return url_list
 
 
@@ -222,10 +209,6 @@ def links_city_hostels(paginated_list):
     url_count = len(links_list)
     print(f"\nlinks_list = {links_list}\n")
     print(f"\nLength of list: {url_count}")
-    main_process = psutil.Process()
-    memory_used = main_process.memory_info().rss
-    memory_used = memory_used/(1024**2)
-    print(f"memory used: {memory_used:.2f}MB")
     return url_count
 
 
@@ -268,10 +251,6 @@ def city_hostel_dict(hostels_links):
 
     print(f"\nComplete Dictionary: {ratings_dict}\n")
     print(f"Unrated hostels: {no_rating_string}")
-    main_process = psutil.Process()
-    memory_used = main_process.memory_info().rss
-    memory_used = memory_used/(1024**2)
-    print(f"memory used: {memory_used:.2f}MB")
     return ratings_dict
 
 
